@@ -2,11 +2,13 @@ services:
   postgres:
     image: 'postgres:latest'
     environment:
-      - 'POSTGRES_DB=mydatabase'
-      - 'POSTGRES_PASSWORD=secret'
-      - 'POSTGRES_USER=myuser'
+      - 'POSTGRES_DB=postgres'
+      - 'POSTGRES_PASSWORD=1a2b3c4d5e6f7g8h'
+      - 'POSTGRES_USER=Abc12345'
     ports:
       - '5432'
+    networks:
+      - network
 
   backend:
     build:
@@ -24,7 +26,7 @@ services:
       context: "./frontend - angular"
       dockerfile: Dockerfile
     volumes:
-      - ./frontend/src:/app/src
+      - "./frontend - angular/src:/app/src"
       - ${PWD}/certs:/certs
     networks:
       - network
@@ -37,7 +39,6 @@ services:
       context: "./frontend - next.js"
       dockerfile: Dockerfile
     volumes:
-      - ./frontend/app:/app
       - ${PWD}/certs:/certs
     networks:
       - network
