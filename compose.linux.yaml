@@ -1,0 +1,50 @@
+services:
+  postgres:
+    image: 'postgres:latest'
+    environment:
+      - 'POSTGRES_DB=mydatabase'
+      - 'POSTGRES_PASSWORD=secret'
+      - 'POSTGRES_USER=myuser'
+    ports:
+      - '5432'
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    ports:
+      - "4443:443"
+    volumes:
+      - ${PWD}/certs:/certs
+    networks:
+      - network
+
+  angular-frontend:
+    build:
+      context: "./frontend - angular"
+      dockerfile: Dockerfile
+    volumes:
+      - ./frontend/src:/app/src
+      - ${PWD}/certs:/certs
+    networks:
+      - network
+    ports:
+      - "4200:4200"
+    restart: always
+
+  next-frontend:
+    build:
+      context: "./frontend - next.js"
+      dockerfile: Dockerfile
+    volumes:
+      - ./frontend/app:/app
+      - ${PWD}/certs:/certs
+    networks:
+      - network
+    ports:
+      - "3000:3000"
+    restart: always
+
+networks:
+  network:
+    driver: bridge
