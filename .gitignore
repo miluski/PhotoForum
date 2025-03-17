@@ -108,3 +108,5 @@ yarn-debug.log*
 next-env.d.ts
 
 node_modules
+.next
+.angular
