@@ -1,51 +1,27 @@
 services:
-  postgres:
-    image: 'postgres:latest'
-    environment:
-      - 'POSTGRES_DB=postgres'
-      - 'POSTGRES_PASSWORD=1a2b3c4d5e6f7g8h'
-      - 'POSTGRES_USER=Abc12345'
-    ports:
-      - '5432'
-    networks:
-      - network
 
-  backend:
-    build:
-      context: ./backend
-      dockerfile: Dockerfile
-    ports:
-      - "4443:443"
-    volumes:
-      - ${PWD}/certs:/certs
-    networks:
-      - network
-
-  angular-frontend:
+  photo-forum-angular-frontend:
     build:
       context: "./frontend - angular"
       dockerfile: Dockerfile
     volumes:
       - "./frontend - angular/src:/app/src"
-      - ${PWD}/certs:/certs
     networks:
-      - network
+      - photo-forum-network
     ports:
       - "4200:4200"
     restart: always
 
-  next-frontend:
+  photo-forum-next-frontend:
     build:
       context: "./frontend - next.js"
       dockerfile: Dockerfile
-    volumes:
-      - ${PWD}/certs:/certs
     networks:
-      - network
+      - photo-forum-network
     ports:
       - "3000:3000"
     restart: always
 
 networks:
-  network:
+  photo-forum-network:
     driver: bridge
