@@ -1,3 +1,5 @@
+"use client";
+
 import { useIsAuthorizedQuery } from "@/hooks/queries/is-authorized.query";
 import { unauthorized } from "next/navigation";
 
