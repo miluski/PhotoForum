@@ -3,11 +3,11 @@ import { HeaderComponent } from '../header/header.component';
 import { FooterComponent } from '../footer/footer.component';
 
 @Component({
-  selector: 'app-unauthorized',
-  templateUrl: './unauthorized.component.html',
+  selector: 'app-single-photo',
   imports: [HeaderComponent, FooterComponent],
+  templateUrl: './single-photo.component.html',
   standalone: true
 })
-export class UnauthorizedComponent {
+export class SinglePhotoComponent {
 
 }
