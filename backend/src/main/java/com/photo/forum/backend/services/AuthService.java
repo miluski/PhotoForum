@@ -63,7 +63,7 @@ public class AuthService {
             User databaseUser = this.getUserObjectFromDatabase(user);
             this.authenticationManager.authenticate(authentication);
             this.tokenService.addTokensToResponse(databaseUser.getLogin(), httpServletResponse);
-            return ResponseEntity.status(HttpStatus.OK).build();
+            return ResponseEntity.status(HttpStatus.OK).body(databaseUser.getName());
         } catch (Exception e) {
             e.printStackTrace();
             System.out.println("Unsuccessfull login try for user with dto: " + userDto.toString());

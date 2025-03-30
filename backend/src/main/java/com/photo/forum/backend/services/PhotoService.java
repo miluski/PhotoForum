@@ -81,7 +81,7 @@ public class PhotoService {
     public ResponseEntity<?> getPhotoResponseEntity() {
         try {
             Resource resource = this.getPhotoResource();
-            if (resource != null) {
+            if (resource != null && resource.exists()) {
                 HttpHeaders httpHeaders = this.getHeaders(resource);
                 return ResponseEntity.status(HttpStatus.OK).headers(httpHeaders).body(resource);
             }
@@ -174,21 +174,14 @@ public class PhotoService {
 
     private String getContentType() {
         String contentType = "application/octet-stream";
-        Integer indexOfLastDotInPhotoName = this.photoName.lastIndexOf('.') + 1;
-        String imageExtension = photoName.substring(indexOfLastDotInPhotoName);
-        switch (imageExtension) {
-            case ".png":
-                contentType = "image/png";
-                break;
-            case ".jpg":
-                contentType = "image/jpg";
-                break;
-            case ".jpeg":
-                contentType = "image/jpeg";
-                break;
-            case ".webp":
-                contentType = "image/webp";
-                break;
+        if (this.photoName.endsWith(".png")) {
+            contentType = "image/png";
+        } else if (this.photoName.endsWith(".jpeg")) {
+            contentType = "image/jpeg";
+        } else if (this.photoName.endsWith(".jpg")) {
+            contentType = "image/jpg";
+        } else if (this.photoName.endsWith(".webp")) {
+            contentType = "image/webp";
         }
         return contentType;
     }

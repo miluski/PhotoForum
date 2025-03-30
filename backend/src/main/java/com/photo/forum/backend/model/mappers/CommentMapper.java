@@ -18,7 +18,7 @@ public class CommentMapper {
     }
 
     public CommentDto getCommentDtoFromObject(Comment comment) {
-        UserDto userDto = this.userMapper.getUserDtoFromObjectForPhoto(comment.getUser());
+        UserDto userDto = this.userMapper.getUserDtoWithoutCriticalData(comment.getUser());
         return CommentDto
                 .builder()
                 .content(comment.getContent())

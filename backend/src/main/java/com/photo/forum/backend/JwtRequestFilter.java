@@ -1,7 +1,6 @@
 package com.photo.forum.backend;
 
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Stream;
@@ -57,8 +56,10 @@ public class JwtRequestFilter extends OncePerRequestFilter {
         try {
             this.httpServletRequest = httpServletRequest;
             this.httpServletResponse = httpServletResponse;
-            this.handleProtectedUriRequest();
-            filterChain.doFilter(httpServletRequest, httpServletResponse);
+            boolean isAuthorizedRequest = this.handleProtectedUriRequest();
+            if (isAuthorizedRequest) {
+                filterChain.doFilter(httpServletRequest, httpServletResponse);
+            }
             return;
         } catch (Exception e) {
             System.out.println("Error occured while filtering request with uri " + httpServletRequest.getRequestURI());
@@ -66,26 +67,31 @@ public class JwtRequestFilter extends OncePerRequestFilter {
         }
     }
 
-    private void handleProtectedUriRequest() throws ServletException, IOException {
+    private boolean handleProtectedUriRequest() throws ServletException, IOException {
         String requestUri = httpServletRequest.getRequestURI();
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         boolean isRefreshTokenRequest = requestUri.contains("/api/v1/auth/refresh-tokens")
                 || requestUri.contains("/api/v1/auth/logout");
-        boolean isNotAuthenticated = authentication == null;
+        boolean isNotAuthenticated = (authentication == null || !authentication.isAuthenticated());
         if (this.checkIfUriIsProtected() && isNotAuthenticated) {
             boolean isTokenValid = this.isTokenValid(isRefreshTokenRequest ? "REFRESH" : "ACCESS");
-            if (isTokenValid == false) {
+            if (!isTokenValid) {
                 this.setUnauthorizedResponseCredentials();
+                return false;
             } else {
                 this.setAuthentication();
             }
         }
+        return true;
     }
 
     private boolean checkIfUriIsProtected() throws ServletException, IOException {
         String requestUri = httpServletRequest.getRequestURI();
         Stream<String> nonProtectedUrisStream = this.nonProtectedUris.stream();
-        boolean isNonProtectedUri = nonProtectedUrisStream.anyMatch(uri -> uri.equals(requestUri));
+        boolean isNonProtectedUri = nonProtectedUrisStream.anyMatch(uri -> {
+            boolean isPhotoPublicUri = requestUri.contains(uri);
+            return isPhotoPublicUri || uri.equals(requestUri);
+        });
         boolean isPhotoUriProtected = requestUri.contains("add-comment") || requestUri.contains("add-to-favourites");
         return isNonProtectedUri == false || isPhotoUriProtected;
     }
@@ -106,9 +112,7 @@ public class JwtRequestFilter extends OncePerRequestFilter {
 
     private void setUnauthorizedResponseCredentials() throws IOException {
         int unauthorizedStatus = HttpStatus.UNAUTHORIZED.value();
-        PrintWriter responseWriter = this.httpServletResponse.getWriter();
-        this.httpServletResponse.setStatus(unauthorizedStatus);
-        responseWriter.write("Not enough permissions to access this endpoint.");
+        httpServletResponse.setStatus(unauthorizedStatus);
     }
 
     private void setAuthentication() {

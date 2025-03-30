@@ -15,11 +15,12 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import com.photo.forum.backend.model.dto.FavouritePhotoDto;
+import com.photo.forum.backend.model.dto.PhotoDto;
 import com.photo.forum.backend.model.dto.UserDto;
 import com.photo.forum.backend.model.entity.FavouritePhoto;
 import com.photo.forum.backend.model.entity.User;
-import com.photo.forum.backend.model.mappers.FavouritePhotoMapper;
+import com.photo.forum.backend.model.mappers.PhotoMapper;
+import com.photo.forum.backend.model.mappers.UserMapper;
 import com.photo.forum.backend.repositories.FavouritePhotoRepository;
 import com.photo.forum.backend.repositories.UserRepository;
 
@@ -40,26 +41,28 @@ public class UserService {
     private HttpServletRequest httpServletRequest;
     private HttpServletResponse httpServletResponse;
 
+    private final UserMapper userMapper;
+    private final PhotoMapper photoMapper;
     private final TokenService tokenService;
     private final CookieService cookieService;
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final ValidationService validationService;
-    private final FavouritePhotoMapper favouritePhotoMapper;
     private final FavouritePhotoRepository favouritePhotoRepository;
 
     @Autowired
-    public UserService(TokenService tokenService, CookieService cookieService,
+    public UserService(UserMapper userMapper, PhotoMapper photoMapper, TokenService tokenService,
+            CookieService cookieService,
             UserRepository userRepository,
             PasswordEncoder passwordEncoder, ValidationService validationService,
-            FavouritePhotoMapper favouritePhotoMapper,
             FavouritePhotoRepository favouritePhotoRepository) {
+        this.userMapper = userMapper;
+        this.photoMapper = photoMapper;
         this.tokenService = tokenService;
         this.cookieService = cookieService;
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.validationService = validationService;
-        this.favouritePhotoMapper = favouritePhotoMapper;
         this.favouritePhotoRepository = favouritePhotoRepository;
     }
 
@@ -87,11 +90,27 @@ public class UserService {
             User user = this.getFoundedUser();
             List<FavouritePhoto> favouritePhotos = this.favouritePhotoRepository.findFavouritePhotosByUser(user);
             if (favouritePhotos.size() >= 1) {
-                List<FavouritePhotoDto> favouritePhotoDtos = favouritePhotos.stream()
-                        .map(this.favouritePhotoMapper::getFavouritePhotoDtoFromFavouritePhoto).toList();
+                List<PhotoDto> favouritePhotoDtos = favouritePhotos.stream()
+                        .map(this.photoMapper::getPhotoDtoFromFavouritePhoto).toList();
                 return ResponseEntity.status(HttpStatus.OK).body(favouritePhotoDtos);
             }
             throw new NotFoundException();
+        } catch (NotFoundException e) {
+            e.printStackTrace();
+            System.out.println("Some of elements required to retrieve favourite photos was not found.");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        } catch (Exception e) {
+            e.printStackTrace();
+            System.out.println("Unsuccessfull try to retrieve favourite photos.");
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
+    public ResponseEntity<?> getUserDetailsResponseEntity() {
+        try {
+            User user = this.getFoundedUser();
+            UserDto userDto = this.userMapper.getUserDtoWithoutCriticalData(user);
+            return ResponseEntity.status(HttpStatus.OK).body(userDto);
         } catch (NotFoundException e) {
             e.printStackTrace();
             System.out.println("Some of elements required to retrieve favourite photos was not found.");

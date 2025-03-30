@@ -9,6 +9,7 @@ import com.photo.forum.backend.model.dto.CommentDto;
 import com.photo.forum.backend.model.dto.PhotoDto;
 import com.photo.forum.backend.model.dto.UserDto;
 import com.photo.forum.backend.model.entity.Comment;
+import com.photo.forum.backend.model.entity.FavouritePhoto;
 import com.photo.forum.backend.model.entity.Photo;
 import com.photo.forum.backend.model.entity.User;
 import com.photo.forum.backend.repositories.CommentRepository;
@@ -33,23 +34,30 @@ public class PhotoMapper {
     }
 
     public Photo getPhotoFromDto(PhotoDto photoDto, User user, String photoPath) {
+        String finalPhotoPath = photoPath.replace("/media/", "");
         return Photo
                 .builder()
                 .likesCount(0)
-                .path(photoPath)
+                .path(finalPhotoPath)
                 .user(user)
                 .build();
     }
 
+    public PhotoDto getPhotoDtoFromFavouritePhoto(FavouritePhoto favouritePhoto) {
+        Photo photo = favouritePhoto.getPhoto();
+        return this.getPhotoDtoFromObject(photo);
+    }
+
     public PhotoDto getPhotoDtoFromObject(Photo photo) {
-        UserDto userDto = this.userMapper.getUserDtoFromObjectForPhoto(photo.getUser());
+        String finalPhotoPath = photo.getPath().replace("/media/", "");
+        UserDto userDto = this.userMapper.getUserDtoWithoutCriticalData(photo.getUser());
         List<Comment> comments = this.commentRepository.findByPhoto(photo);
         List<CommentDto> commentDtos = comments.stream().map(this.commentMapper::getCommentDtoFromObject).toList();
         return PhotoDto
                 .builder()
                 .id(photo.getId())
                 .likesCount(photo.getLikesCount())
-                .path(photo.getPath())
+                .path(finalPhotoPath)
                 .userDto(userDto)
                 .commentDtos(commentDtos)
                 .build();

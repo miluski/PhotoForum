@@ -39,4 +39,10 @@ public class UserController {
         this.userService.setHttpServletRequest(httpServletRequest);
         return this.userService.getFavouritePhotosResponseEntity();
     }
+
+    @GetMapping("/user-details")
+    public ResponseEntity<?> getUserDetails(HttpServletRequest httpServletRequest) {
+        this.userService.setHttpServletRequest(httpServletRequest);
+        return this.userService.getUserDetailsResponseEntity();
+    }
 }

@@ -28,12 +28,15 @@ public class UserMapper {
                 .build();
     }
 
-    public UserDto getUserDtoFromObjectForPhoto(User user) {
+    public UserDto getUserDtoWithoutCriticalData(User user) {
+        boolean isAvatarPathNull = user.getAvatarPath() == null;
+        String finalAvatarPath = isAvatarPathNull ? null : user.getAvatarPath().replace("/media/", "");
         return UserDto
                 .builder()
                 .name(user.getName())
                 .surname(user.getSurname())
-                .avatarPath(user.getAvatarPath())
+                .login(user.getLogin())
+                .avatarPath(finalAvatarPath)
                 .build();
     }
 }
