@@ -1,11 +1,13 @@
 import { Routes } from '@angular/router';
 import { AddPhotoComponent } from './add-photo/add-photo.component';
 import { AuthGuard } from './auth.guard';
+import { AuthorizedGuard } from './authorized.guard';
 import { DashboardComponent } from './dashboard/dashboard.component';
 import { HomeComponent } from './home/home.component';
 import { LoginComponent } from './login/login.component';
 import { NotFoundComponent } from './not-found/not-found.component';
 import { RegisterComponent } from './register/register.component';
+import { SinglePhotoComponent } from './single-photo/single-photo.component';
 import { UnauthorizedComponent } from './unauthorized/unauthorized.component';
 
 export const routes: Routes = [
@@ -16,10 +18,12 @@ export const routes: Routes = [
   {
     path: 'login',
     component: LoginComponent,
+    canActivate: [AuthorizedGuard],
   },
   {
     path: 'register',
     component: RegisterComponent,
+    canActivate: [AuthorizedGuard],
   },
   {
     path: 'dashboard',
@@ -30,6 +34,10 @@ export const routes: Routes = [
     path: 'add-photo',
     component: AddPhotoComponent,
     canActivate: [AuthGuard],
+  },
+  {
+    path: 'single-photo',
+    component: SinglePhotoComponent,
   },
   {
     path: 'unauthorized',

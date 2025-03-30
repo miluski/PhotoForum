@@ -11,6 +11,7 @@ import {
   provideClientHydration,
   withEventReplay,
 } from '@angular/platform-browser';
+import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
 import { InterceptorService } from '../services/interceptor.service';
 import { routes } from './app.routes';
 
@@ -20,6 +21,7 @@ export const appConfig: ApplicationConfig = {
     provideRouter(routes),
     provideClientHydration(withEventReplay()),
     provideHttpClient(withFetch(), withInterceptorsFromDi()),
+    provideAnimationsAsync(),
     { provide: HTTP_INTERCEPTORS, useClass: InterceptorService, multi: true },
   ],
 };

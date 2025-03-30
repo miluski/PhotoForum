@@ -1,3 +1,19 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+* {
+  scrollbar-width: none;
+  scrollbar-color: transparent transparent;
+  scroll-behavior: smooth !important;
+  user-select: none;
+}
+
+body {
+  background-image: url("/background.png");
+  background-size: cover; 
+  background-position: center;
+  background-repeat: no-repeat;
+  width: 100%;
+  margin: 0;
+}

@@ -50,10 +50,16 @@
                   "maximumError": "8kB"
                 }
               ],
-              "outputHashing": "all"
+              "outputHashing": "all",
+              "fileReplacements": [
+                {
+                  "replace": "src/environments/environment.development.ts",
+                  "with": "src/environments/environment.ts"
+                }
+              ]
             },
             "development": {
-              "optimization": false,
+              "optimization": true,
               "extractLicenses": false,
               "sourceMap": true
             }
@@ -67,7 +73,10 @@
               "buildTarget": "photo-forum:build:production"
             },
             "development": {
-              "buildTarget": "photo-forum:build:development"
+              "buildTarget": "photo-forum:build:development",
+              "sslKey": "../certs/angular-frontend.key",
+              "sslCert": "../certs/angular-frontend.crt",
+              "ssl": true
             }
           },
           "defaultConfiguration": "development"

@@ -44,7 +44,7 @@ export class InterceptorService implements HttpInterceptor {
     });
     this.next = next;
     this.request = request;
-    return next.handle(clonedRequest).pipe(catchError(this.handleError));
+    return next.handle(clonedRequest).pipe(catchError(this.handleError.bind(this)));
   }
 
   private handleError(error: HttpErrorResponse): Observable<HttpEvent<any>> {
