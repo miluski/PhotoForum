@@ -15,6 +15,12 @@ This is a project which main concept is to compare two frontend frameworks - Nex
 }
 ```
 
+returns:
+
+```
+name_string
+```
+
 - /api/v1/auth/register - POST - for user register request, tokens is not required, required body:
 
 ```json
@@ -39,7 +45,25 @@ This is a project which main concept is to compare two frontend frameworks - Nex
 }
 ```
 
-- /api/v1/photos/posts - GET - for retrieving all photos posts from db, tokens is not required
+- /api/v1/photos/posts - GET - for retrieving all photos posts from db, tokens is not required, returns:
+
+```json
+[
+    {
+        "id": id_number,
+        "path": "mediapath_string",
+        "userDto": {
+            "name": "name_string",
+            "surname": "surname_string",
+            "login": "login_string",
+            "password": null,
+            "avatarPath": null
+        },
+        "likesCount": likesCount_number,
+        "commentDtos": []
+    }
+]
+```
 
 - /api/v1/photos/public/name.extension - GET - for retrieving photo with extension from media folder, tokens is not required, allowed extensions: .png, .jpg, .jpeg, .webp, required path variable:
 
@@ -83,7 +107,38 @@ You must pass only one of above fields to edit user object:
 }
 ```
 
-- /api/v1/users/get-favourite-photos - GET for retrieving photos which user marks as favourite. requires access token in request cookies
+- /api/v1/users/get-favourite-photos - GET - for retrieving photos which user marks as favourite. requires access token in request cookies, returns:
+
+```json
+[
+    {
+        "id": id_number,
+        "path": "media_path_string",
+        "userDto": {
+            "name": "name_string",
+            "surname": "surname_string",
+            "login": "login_string",
+            "password": null,
+            "avatarPath": null
+        },
+        "likesCount": likesCount_number,
+        "commentDtos": []
+    }
+]
+
+```
+
+- /api/v1/users/user-details - GET - returns userdto details object. needs access token to authorize, returns:
+
+```json
+{
+	"name": "name_string",
+	"surname": "surname_string",
+	"login": "login_string",
+	"password": null,
+	"avatarPath": null
+}
+```
 
 ## Running
 
