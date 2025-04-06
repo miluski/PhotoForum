@@ -92,7 +92,10 @@ public class UserService {
             if (favouritePhotos.size() >= 1) {
                 List<PhotoDto> favouritePhotoDtos = favouritePhotos.stream()
                         .map(this.photoMapper::getPhotoDtoFromFavouritePhoto).toList();
-                return ResponseEntity.status(HttpStatus.OK).body(favouritePhotoDtos);
+                return ResponseEntity
+                        .status(HttpStatus.OK)
+                        .header("Content-Type", "application/json")
+                        .body(favouritePhotoDtos);
             }
             throw new NotFoundException();
         } catch (NotFoundException e) {
@@ -110,7 +113,10 @@ public class UserService {
         try {
             User user = this.getFoundedUser();
             UserDto userDto = this.userMapper.getUserDtoWithoutCriticalData(user);
-            return ResponseEntity.status(HttpStatus.OK).body(userDto);
+            return ResponseEntity
+                    .status(HttpStatus.OK)
+                    .header("Content-Type", "application/json")
+                    .body(userDto);
         } catch (NotFoundException e) {
             e.printStackTrace();
             System.out.println("Some of elements required to retrieve favourite photos was not found.");

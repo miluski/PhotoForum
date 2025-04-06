@@ -93,6 +93,30 @@ photo-id - for example 1
 photo-id - for example 1
 ```
 
+- /api/v1/photos/public/id/photo-id - GET - retrieves single photo object, token is not required to authenticate, required path variable:
+
+```
+photo-id - for example 1
+```
+
+returns:
+
+```
+    {
+        "id": id_number,
+        "path": "mediapath_string",
+        "userDto": {
+            "name": "name_string",
+            "surname": "surname_string",
+            "login": "login_string",
+            "password": null,
+            "avatarPath": null
+        },
+        "likesCount": likesCount_number,
+        "commentDtos": []
+    }
+```
+
 - /api/v1/users/edit - PATCH - for editing user object, requires access token to get edited user id and to authorize and body:
 
 You must pass only one of above fields to edit user object:
@@ -147,11 +171,11 @@ You must pass only one of above fields to edit user object:
 To run frontend part of app run following command in PhotoForum dir (not backend or frontend or another path):
 
 ```
-windows:
-docker compose -f compose.windows.yaml up --build --force-recreate
+Development mode:
+docker compose -f compose.frontend.dev.yaml up --build --force-recreate
 
-linux/macos:
-docker compose -f compose.linux.yaml up --build --force-recreate
+Production mode:
+docker compose -f compose.frontend.yaml up --build --force-recreate
 ```
 
 ### Backend part
@@ -159,11 +183,11 @@ docker compose -f compose.linux.yaml up --build --force-recreate
 To run backend backend part of app provide following command in PhotoForum dir (not backend or frontend or another path):
 
 ```
-windows:
-docker compose -f compose.backend.windows.yaml up --build --force-recreate
+Development mode (with hot reloading):
+docker compose -f compose.backend.dev.yaml up --build --force-recreate
 
-linux/macos:
-docker compose -f compose.backend.linux.yaml up --build --force-recreate
+Production mode:
+docker compose -f compose.backend.yaml up --build --force-recreate
 ```
 
 ## Required files

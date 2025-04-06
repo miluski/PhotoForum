@@ -52,7 +52,11 @@ public class PhotoMapper {
         String finalPhotoPath = photo.getPath().replace("/media/", "");
         UserDto userDto = this.userMapper.getUserDtoWithoutCriticalData(photo.getUser());
         List<Comment> comments = this.commentRepository.findByPhoto(photo);
-        List<CommentDto> commentDtos = comments.stream().map(this.commentMapper::getCommentDtoFromObject).toList();
+        List<CommentDto> commentDtos = comments
+                .stream()
+                .sorted((comment1, comment2) -> Long.compare(comment2.getAddDate().getTime(),
+                        comment1.getAddDate().getTime()))
+                .map(this.commentMapper::getCommentDtoFromObject).toList();
         return PhotoDto
                 .builder()
                 .id(photo.getId())
