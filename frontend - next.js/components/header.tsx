@@ -24,6 +24,7 @@ import { useRouter } from "next/navigation";
 import { axiosInstance } from "@/interceptor";
 import { useQueryClient } from "@tanstack/react-query";
 import Link from "next/link";
+import { useSearch } from "./search-provider";
 
 export const Header = () => {
   const { data: isAuthorized } = useIsAuthorizedQuery();
@@ -31,6 +32,7 @@ export const Header = () => {
   const router = useRouter();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
+  const { setSearchQuery, searchQuery } = useSearch();
 
   const handleLogout = async () => {
     try {
@@ -107,6 +109,8 @@ export const Header = () => {
             <Search className="w-5 h-5 text-gray-500 ml-3" />
             <input
               type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="wyszukaj zdjęcie..."
               className="flex-1 px-4 py-2 focus:outline-none bg-transparent"
             />
@@ -182,8 +186,8 @@ export const Header = () => {
 
       {/* Mobile Sidebar */}
       {isMobileMenuOpen && (
-        <div className="fixed inset-0 bg-black/20 md:hidden z-40">
-          <div className="fixed top-0 right-0 h-full w-64 bg-white shadow-lg p-4">
+        <div className="fixed top-0 bottom-0 inset-0 z-100 h-[100vh] bg-black/20 md:hidden z-40">
+          <div className="fixed top-0 right-0 h-[100vh] w-64 bg-white shadow-lg p-4">
             <div className="flex justify-end">
               <button onClick={() => setIsMobileMenuOpen(false)}>
                 <X className="w-6 h-6" />
@@ -212,6 +216,8 @@ export const Header = () => {
                     <Search className="w-5 h-5 text-gray-500 ml-3" />
                     <input
                       type="text"
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
                       placeholder="wyszukaj zdjęcie..."
                       className="flex-1 px-4 py-2 focus:outline-none bg-transparent"
                     />
