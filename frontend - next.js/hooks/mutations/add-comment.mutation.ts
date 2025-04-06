@@ -12,7 +12,7 @@ const addComment = async ({
   try {
     const response = await axiosInstance.post(
       `/photos/${photoId}/add-comment`,
-      { comment }
+      comment
     );
     return response.data;
   } catch (error) {
