@@ -1,7 +1,6 @@
 import { Routes } from '@angular/router';
 import { AddPhotoComponent } from './add-photo/add-photo.component';
 import { AuthGuard } from './auth.guard';
-import { AuthorizedGuard } from './authorized.guard';
 import { DashboardComponent } from './dashboard/dashboard.component';
 import { HomeComponent } from './home/home.component';
 import { LoginComponent } from './login/login.component';
@@ -18,12 +17,10 @@ export const routes: Routes = [
   {
     path: 'login',
     component: LoginComponent,
-    canActivate: [AuthorizedGuard],
   },
   {
     path: 'register',
     component: RegisterComponent,
-    canActivate: [AuthorizedGuard],
   },
   {
     path: 'dashboard',

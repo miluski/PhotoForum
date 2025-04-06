@@ -1,7 +1,7 @@
 import { HttpClient, HttpResponse } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Router } from '@angular/router';
-import { NEVER, Observable } from 'rxjs';
+import { BehaviorSubject, NEVER, Observable } from 'rxjs';
 import { environment } from '../environments/environment.development';
 import { User } from '../types/user';
 
@@ -10,19 +10,24 @@ import { User } from '../types/user';
 })
 export class AuthService {
   private _userObject!: User;
-  private _isAuthorizedUser: boolean;
+  private _originalUserLogin!: string;
+  private _isAuthorizedUserObservable: Observable<boolean>;
+  private _isAuthorizedUserSubject: BehaviorSubject<boolean>;
   private _authorizedUserName!: string;
   private _isOperationSuccessfull!: boolean;
 
-  constructor(
-    private router: Router,
-    private httpClient: HttpClient,
-  ) {
-    this._isAuthorizedUser = false;
+  constructor(private router: Router, private httpClient: HttpClient) {
+    this._isAuthorizedUserSubject = new BehaviorSubject(false);
+    this._isAuthorizedUserObservable =
+      this._isAuthorizedUserSubject.asObservable();
   }
 
   get isAuthorizedUser(): boolean {
-    return this._isAuthorizedUser;
+    return this._isAuthorizedUserSubject.getValue();
+  }
+
+  get isAuthorizedUserObservable(): Observable<boolean> {
+    return this._isAuthorizedUserObservable;
   }
 
   get authorizedUserName(): string {
@@ -33,12 +38,37 @@ export class AuthService {
     return this._isOperationSuccessfull;
   }
 
+  get userObject(): User {
+    return this._userObject;
+  }
+
+  get originalUserLogin(): string {
+    return this._originalUserLogin;
+  }
+
+  set authorizedUserName(authorizedUserName: string) {
+    this._authorizedUserName = authorizedUserName;
+  }
+
   set userObject(userObject: User) {
     this._userObject = userObject;
   }
 
-  set isAuthorizedUser(isAuthorizedUser: boolean) {
-    this._isAuthorizedUser = isAuthorizedUser;
+  set originalUserLogin(userLogin: string) {
+    this._originalUserLogin = userLogin;
+  }
+
+  public handleIsAuthorizedRequest(): Observable<never> {
+    const request: Observable<HttpResponse<Object>> = this.httpClient.get(
+      `${environment.apiUrl}/auth/is-authorized`,
+      { observe: 'response' }
+    );
+    request.subscribe({
+      next: (response: HttpResponse<Object>) =>
+        this._isAuthorizedUserSubject.next(response.status === 200),
+      error: () => this._isAuthorizedUserSubject.next(false),
+    });
+    return NEVER;
   }
 
   public handleAuthOperationRequest(
@@ -66,28 +96,13 @@ export class AuthService {
       {}
     );
     request.subscribe();
-    this.isAuthorizedUser = false;
-    return NEVER;
-  }
-
-  public handleIsAuthorized(): Observable<never> {
-    const request: Observable<HttpResponse<Object>> = this.httpClient.get(
-      `${environment.apiUrl}/auth/is-authorized`,
-      { observe: 'response' }
-    );
-    request.subscribe({
-      next: (response: HttpResponse<Object>) => {
-        if (response.status === 200) {
-          this._isAuthorizedUser = true;
-        }
-      },
-    });
+    this._isAuthorizedUserSubject.next(false);
     return NEVER;
   }
 
   private handleOperationStatus(operation: 'login' | 'register'): void {
     const isOperationLogin: boolean = operation === 'login';
-    this.isAuthorizedUser = isOperationLogin;
+    this._isAuthorizedUserSubject.next(isOperationLogin);
     const redirectPath: string = isOperationLogin ? '/' : '/login';
     this.router.navigate([redirectPath]);
   }
