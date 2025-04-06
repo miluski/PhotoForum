@@ -1,3 +1,4 @@
+import { Comment } from "./comment";
 import { User } from "./user";
 
 export interface Photo {
@@ -5,7 +6,7 @@ export interface Photo {
   path: string;
   userDto: User;
   likesCount: number;
-  commentDtos: any[];
+  commentDtos: Comment[];
 }
 
 export interface UploadPhoto {
