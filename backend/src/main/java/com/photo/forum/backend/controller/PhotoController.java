@@ -35,9 +35,13 @@ public class PhotoController {
     }
 
     @GetMapping("/public/{name}")
-    public ResponseEntity<?> getImageByName(@PathVariable String name) {
-        this.photoService.setPhotoName(name);
-        return this.photoService.getPhotoResponseEntity();
+    public ResponseEntity<?> getImageByName(@PathVariable String name, HttpServletRequest httpServletRequest) {
+        return this.photoService.getPhotoResponseEntity(httpServletRequest, name);
+    }
+
+    @GetMapping("/public/id/{id}")
+    public ResponseEntity<?> getPhotoById(@PathVariable String id) {
+        return this.photoService.getPhotoByIdResponseEntity(id);
     }
 
     @PostMapping("/new")

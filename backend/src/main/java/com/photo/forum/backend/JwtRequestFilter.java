@@ -3,7 +3,6 @@ package com.photo.forum.backend;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Stream;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -31,8 +30,6 @@ import jakarta.servlet.http.HttpServletResponse;
 public class JwtRequestFilter extends OncePerRequestFilter {
 
     private String token;
-    private HttpServletRequest httpServletRequest;
-    private HttpServletResponse httpServletResponse;
 
     private final TokenService tokenService;
     private final CookieService cookieService;
@@ -54,68 +51,69 @@ public class JwtRequestFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse,
             FilterChain filterChain) {
         try {
-            this.httpServletRequest = httpServletRequest;
-            this.httpServletResponse = httpServletResponse;
-            boolean isAuthorizedRequest = this.handleProtectedUriRequest();
-            if (isAuthorizedRequest) {
+            boolean isNonProtectedUri = this.checkIfUriIsNotProtected(httpServletRequest);
+            if (isNonProtectedUri) {
                 filterChain.doFilter(httpServletRequest, httpServletResponse);
+                return;
             }
-            return;
+            this.handleProtectedUriRequest(httpServletRequest, httpServletResponse, filterChain);
         } catch (Exception e) {
-            System.out.println("Error occured while filtering request with uri " + httpServletRequest.getRequestURI());
+            System.out.println("Error occurred while filtering request with URI " + httpServletRequest.getRequestURI());
             e.printStackTrace();
         }
     }
 
-    private boolean handleProtectedUriRequest() throws ServletException, IOException {
+    private void handleProtectedUriRequest(HttpServletRequest httpServletRequest,
+            HttpServletResponse httpServletResponse,
+            FilterChain filterChain) throws ServletException, IOException {
         String requestUri = httpServletRequest.getRequestURI();
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         boolean isRefreshTokenRequest = requestUri.contains("/api/v1/auth/refresh-tokens")
                 || requestUri.contains("/api/v1/auth/logout");
         boolean isNotAuthenticated = (authentication == null || !authentication.isAuthenticated());
-        if (this.checkIfUriIsProtected() && isNotAuthenticated) {
-            boolean isTokenValid = this.isTokenValid(isRefreshTokenRequest ? "REFRESH" : "ACCESS");
+        if (isNotAuthenticated) {
+            boolean isTokenValid = this.isTokenValid(httpServletRequest, isRefreshTokenRequest ? "REFRESH" : "ACCESS");
             if (!isTokenValid) {
-                this.setUnauthorizedResponseCredentials();
-                return false;
+                this.setUnauthorizedResponseCredentials(httpServletRequest, httpServletResponse);
             } else {
-                this.setAuthentication();
+                this.setAuthentication(httpServletRequest);
+                filterChain.doFilter(httpServletRequest, httpServletResponse);
             }
         }
-        return true;
     }
 
-    private boolean checkIfUriIsProtected() throws ServletException, IOException {
+    private boolean checkIfUriIsNotProtected(HttpServletRequest httpServletRequest) {
         String requestUri = httpServletRequest.getRequestURI();
-        Stream<String> nonProtectedUrisStream = this.nonProtectedUris.stream();
-        boolean isNonProtectedUri = nonProtectedUrisStream.anyMatch(uri -> {
-            boolean isPhotoPublicUri = requestUri.contains(uri);
-            return isPhotoPublicUri || uri.equals(requestUri);
-        });
-        boolean isPhotoUriProtected = requestUri.contains("add-comment") || requestUri.contains("add-to-favourites");
-        return isNonProtectedUri == false || isPhotoUriProtected;
+        return this.nonProtectedUris.stream().anyMatch(uri -> requestUri.contains(uri) || uri.equals(requestUri));
     }
 
-    private boolean isTokenValid(String tokenType) {
+    private boolean isTokenValid(HttpServletRequest httpServletRequest, String tokenType) {
         boolean isTokenValid = false;
         boolean isAccessToken = tokenType.equals("ACCESS");
-        Cookie[] cookiesArray = this.httpServletRequest.getCookies();
+        Cookie[] cookiesArray = httpServletRequest.getCookies();
         Map<String, Cookie> tokensMap = this.cookieService.getTokensFromRequestCookies(cookiesArray);
-        boolean isTokenListNotEmpty = tokensMap.isEmpty() == false;
-        if (isTokenListNotEmpty) {
+        if (!tokensMap.isEmpty()) {
             Cookie tokenCookie = isAccessToken ? tokensMap.get("ACCESS_TOKEN") : tokensMap.get("REFRESH_TOKEN");
-            this.token = tokenCookie.getValue();
-            isTokenValid = this.tokenService.isTokenValid(token);
+            if (tokenCookie != null) {
+                this.token = tokenCookie.getValue();
+                isTokenValid = this.tokenService.isTokenValid(token);
+            }
         }
         return isTokenValid;
     }
 
-    private void setUnauthorizedResponseCredentials() throws IOException {
-        int unauthorizedStatus = HttpStatus.UNAUTHORIZED.value();
-        httpServletResponse.setStatus(unauthorizedStatus);
+    private void setUnauthorizedResponseCredentials(HttpServletRequest httpServletRequest,
+            HttpServletResponse httpServletResponse) throws IOException {
+        String requestUri = httpServletRequest.getRequestURI();
+        boolean isRequestUriRefreshing = requestUri.contains("/api/v1/auth/refresh-tokens");
+        if (isRequestUriRefreshing) {
+            httpServletResponse.setStatus(HttpStatus.FORBIDDEN.value());
+        } else {
+            httpServletResponse.setStatus(HttpStatus.UNAUTHORIZED.value());
+        }
     }
 
-    private void setAuthentication() {
+    private void setAuthentication(HttpServletRequest httpServletRequest) {
         String userLogin = this.tokenService.getClaimFromToken("subject", this.token);
         UserDetails userDetails = this.userDetailsServiceImpl.loadUserByUsername(userLogin);
         SecurityContext securityContext = SecurityContextHolder.getContext();

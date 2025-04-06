@@ -29,6 +29,7 @@ import com.photo.forum.backend.repositories.FavouritePhotoRepository;
 import com.photo.forum.backend.repositories.PhotoRepository;
 import com.photo.forum.backend.repositories.UserRepository;
 
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.Setter;
 
 @Service
@@ -39,7 +40,6 @@ public class PhotoService {
     private String photoDir;
 
     private String photoId;
-    private String photoName;
     private String commentContent;
 
     private final UserService userService;
@@ -69,8 +69,14 @@ public class PhotoService {
             if (photos.isEmpty()) {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
             } else {
-                List<PhotoDto> photoDtos = photos.stream().map(photoMapper::getPhotoDtoFromObject).toList();
-                return ResponseEntity.status(HttpStatus.OK).body(photoDtos);
+                List<PhotoDto> photoDtos = photos.stream()
+                        .sorted((photo1, photo2) -> Long.compare(photo2.getId(), photo1.getId()))
+                        .map(photoMapper::getPhotoDtoFromObject)
+                        .toList();
+                return ResponseEntity
+                        .status(HttpStatus.OK)
+                        .header("Content-Type", "application/json")
+                        .body(photoDtos);
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -78,17 +84,20 @@ public class PhotoService {
         }
     }
 
-    public ResponseEntity<?> getPhotoResponseEntity() {
+    public ResponseEntity<?> getPhotoResponseEntity(HttpServletRequest httpServletRequest, String photoName) {
         try {
-            Resource resource = this.getPhotoResource();
+            Resource resource = this.getPhotoResource(photoName);
             if (resource != null && resource.exists()) {
-                HttpHeaders httpHeaders = this.getHeaders(resource);
-                return ResponseEntity.status(HttpStatus.OK).headers(httpHeaders).body(resource);
+                HttpHeaders httpHeaders = this.getHeaders(resource, photoName);
+                return ResponseEntity
+                        .status(HttpStatus.OK)
+                        .headers(httpHeaders)
+                        .body(resource);
             }
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         } catch (Exception e) {
             e.printStackTrace();
-            System.out.println("Unsuccessfull try to get photo with name " + photoName + " from directory " + photoDir);
+            System.out.println("Unsuccessful try to get photo with name " + photoName + " from directory " + photoDir);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
@@ -158,29 +167,48 @@ public class PhotoService {
         }
     }
 
-    private Resource getPhotoResource() throws MalformedURLException {
+    public ResponseEntity<?> getPhotoByIdResponseEntity(String photoId) {
+        try {
+            this.photoId = photoId;
+            Photo photo = this.getFoundedPhoto();
+            PhotoDto photoDto = this.photoMapper.getPhotoDtoFromObject(photo);
+            return ResponseEntity
+                    .status(HttpStatus.OK)
+                    .header("Content-Type", "application/json")
+                    .body(photoDto);
+        } catch (NotFoundException e) {
+            e.printStackTrace();
+            System.out.println("Some element needed for add coment to photo was not found.");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
+    private Resource getPhotoResource(String photoName) throws MalformedURLException {
         Path path = Paths.get(photoDir).resolve(photoName).normalize();
         Resource resource = new UrlResource(path.toUri());
         return resource.exists() ? resource : null;
     }
 
-    private HttpHeaders getHeaders(Resource resource) throws IOException {
+    private HttpHeaders getHeaders(Resource resource, String photoName) throws IOException {
         HttpHeaders httpHeaders = new HttpHeaders();
-        httpHeaders.add(HttpHeaders.CONTENT_TYPE, this.getContentType());
+        httpHeaders.add(HttpHeaders.CONTENT_TYPE, this.getContentType(photoName));
         httpHeaders.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + resource.getFilename() + "\"");
         httpHeaders.add(HttpHeaders.CONTENT_LENGTH, String.valueOf(resource.contentLength()));
         return httpHeaders;
     }
 
-    private String getContentType() {
+    private String getContentType(String photoName) {
         String contentType = "application/octet-stream";
-        if (this.photoName.endsWith(".png")) {
+        if (photoName.endsWith(".png")) {
             contentType = "image/png";
-        } else if (this.photoName.endsWith(".jpeg")) {
+        } else if (photoName.endsWith(".jpeg")) {
             contentType = "image/jpeg";
-        } else if (this.photoName.endsWith(".jpg")) {
+        } else if (photoName.endsWith(".jpg")) {
             contentType = "image/jpg";
-        } else if (this.photoName.endsWith(".webp")) {
+        } else if (photoName.endsWith(".webp")) {
             contentType = "image/webp";
         }
         return contentType;
