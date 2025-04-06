@@ -3,7 +3,9 @@ module.exports = {
   content: ["./src/**/*.{html,ts,js}"],
   theme: {
     extend: {
-      fontFamily: {},
+      fontFamily: {
+        "roboto": "Roboto"
+      },
       screens: {
         xs: "480px",
         sm: "640px",

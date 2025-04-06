@@ -1,15 +1,25 @@
-FROM node:23-alpine
+FROM node:alpine AS build
 
 WORKDIR /app
 
 COPY . .
 
-RUN rm -rf node_modules package-lock.json
+RUN rm -rf package-lock.json node_modules
 
-RUN npm install -g @angular/cli
+RUN npm install -g @angular/cli --latest
 
 RUN npm install
 
-EXPOSE 4200
+RUN ng build --configuration production --verbose
 
-CMD ["ng", "serve", "--host", "0.0.0.0"]
+FROM node:alpine
+
+RUN apk add --no-cache nginx
+
+COPY --from=build /app/dist/photo-forum/browser /usr/share/nginx/html
+COPY --from=build /app/dist/photo-forum/server /app/server
+COPY --from=build /app/dist/photo-forum/browser /dist/frontend/browser
+
+COPY nginx.conf /etc/nginx/nginx.conf
+
+CMD ["sh", "-c", "node /app/server/main.server.mjs && nginx -g 'daemon off;'"]

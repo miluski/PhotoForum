@@ -3,9 +3,10 @@ services:
   photo-forum-angular-frontend:
     build:
       context: "./frontend - angular"
-      dockerfile: Dockerfile
+      dockerfile: Dockerfile.dev
     volumes:
       - "./frontend - angular/src:/app/src"
+      - ./certs:/certs
     networks:
       - photo-forum-network
     ports:
@@ -15,7 +16,10 @@ services:
   photo-forum-next-frontend:
     build:
       context: "./frontend - next.js"
-      dockerfile: Dockerfile
+      dockerfile: Dockerfile.dev
+    volumes:
+      - "./frontend - next.js:/app"
+      - "/app/node_modules"
     networks:
       - photo-forum-network
     ports:

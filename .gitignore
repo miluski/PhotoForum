@@ -110,3 +110,4 @@ next-env.d.ts
 node_modules
 .next
 .angular
+dist
