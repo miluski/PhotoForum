@@ -1,0 +1,16 @@
+<div
+  *ngIf="isLoading"
+  class="flex justify-center items-center space-x-5"
+  [ngClass]="ownClass"
+>
+  @for (dot of dotsArray; track dot) {
+  <div [@typingDots]="this.loadingAnimationState" [ngClass]="dotsClass"></div>
+  }
+</div>
+<img
+  *ngIf="isLoading === false"
+  class="pointer-events-none"
+  [src]="apiUrl"
+  [alt]="imageAlt"
+  [ngClass]="imageClass"
+/>

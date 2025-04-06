@@ -1,4 +1,97 @@
 <main class="w-screen min-h-screen">
   <app-header />
+  <div class="flex flex-col w-screen justify-center items-center">
+    <div
+      class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-x-4 w-[90%] place-items-center"
+      *ngIf="filterService.photoPosts.length > 0"
+    >
+      <div
+        class="flex flex-row w-[300px] items-center justify-center text-black text-lg font-roboto font-light my-5 space-x-10 rounded-lg bg-[#F9DE98] p-2"
+        *ngIf="authService.isAuthorizedUser"
+      >
+        <div
+          class="flex flex-row cursor-pointer rounded-lg bg-transparent px-5 py-1"
+          [ngClass]="{
+            '!bg-white': this.filterService.selectedFilter === 'all'
+          }"
+          (click)="this.filterService.applyFilter('all')"
+        >
+          <p>Wszystkie</p>
+        </div>
+        <div
+          class="flex flex-row cursor-pointer rounded-lg bg-transparent px-5 py-1"
+          [ngClass]="{
+            '!bg-white': this.filterService.selectedFilter === 'favourites'
+          }"
+          (click)="this.filterService.applyFilter('favourites')"
+        >
+          <p>Ulubione</p>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div
+    class="flex flex-col w-screen min-h-[75dvh] justify-center py-5 items-center"
+  >
+    @if(filterService.photoPosts.length > 0) {
+    <div
+      class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 min-h-[80dvh] w-[90%] place-items-center"
+    >
+      @for(photoPost of filterService.photoPosts; track photoPost.id) {
+      <div
+        class="flex flex-col bg-[#f0de98] w-[300px] h-[300px] drop-shadow-md rounded-2xl cursor-pointer mb-10"
+        (click)="handleSinglePhotoClick(photoPost.id)"
+      >
+        <app-image
+          [imageName]="photoPost.path"
+          imageAlt="photo-post-image"
+          ownClass="h-[250px]"
+          imageClass="w-full h-[250px] rounded-t-2xl"
+          dotsClass="h-4 w-4 rounded-sm bg-[#fdd458]"
+        />
+        <div
+          class="flex flex-row w-full items-center justify-center mt-2 text-sm font-roboto font-light text-nowrap space-x-5"
+        >
+          <app-user-avatar
+            [avatarPath]="photoPost.author.avatarPath"
+            [avatarAlt]="photoPost.author.login + ' avatar'"
+            [userObject]="photoPost.author"
+            avatarClass="w-8 h-8"
+            ownClass="w-8 h-8"
+          />
+          <p class="text-black">
+            {{
+              this.userService.getAuthorNameAndSurname(
+                photoPost.author,
+                "multiple"
+              )
+            }}
+          </p>
+          <div class="flex flex-row w-10 space-x-1">
+            <i
+              class="fa-solid fa-heart text-xl"
+              [ngClass]="{
+                'text-red-500': this.userService.getIsFavouriteUserPhoto(
+                  photoPost.id
+                )
+              }"
+            ></i>
+            <p class="mt-1">{{ photoPost.likesCount }}</p>
+          </div>
+          <div class="flex flex-row w-10 space-x-1">
+            <i class="fa-solid fa-comment text-xl"></i>
+            <p class="mt-1">{{ photoPost.comments.length }}</p>
+          </div>
+        </div>
+      </div>
+      }
+    </div>
+    } @else {
+    <p class="text-center pt-5 w-full !justify-self-center">
+      Nie znaleziono żadnych zdjęć na forum. Dodaj swoje, aby rozpocząć dyskusję
+      i podzielić się swoją pasją!
+    </p>
+    }
+  </div>
   <app-footer />
 </main>
