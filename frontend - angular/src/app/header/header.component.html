@@ -17,7 +17,7 @@
   >
     <div
       class="rounded-full bg-white h-10 w-10 max-sm:w-6 max-sm:h-6 max-sm:mt-3 mx-10 text-black max-sm:text-2xl text-5xl flex justify-center items-center drop-shadow-md cursor-pointer !overflow-visible"
-      *ngIf="this.authService.isAuthorizedUser === false"
+      *ngIf="this.authService.isAuthorizedUser"
       [routerLink]="['/add-photo']"
       routerLinkActive="router-link-active"
     >
@@ -30,16 +30,20 @@
       <input
         type="search"
         placeholder="wyszukaj zdjęcie..."
-        class="rounded-2xl h-4 p-5 pl-10 drop-shadow-md w-full focus:outline-none"
+        [(ngModel)]="searchPhrase"
+        (input)="handleSearch()"
+        class="rounded-2xl h-4 p-5 pl-10 drop-shadow-md w-full"
       />
     </div>
   </div>
-  <div class="flex flex-row items-center justify-center h-full mt-5 space-x-2 mx-5">
+  <div
+    class="flex flex-row items-center justify-center h-full mt-5 space-x-2 mx-5"
+  >
     <p
-      class="font-roboto font-normal text-xl mb-12 text-nowrap"
+      class="font-roboto font-normal text-xl mb-12 text-nowrap max-md:hidden"
       *ngIf="this.authService.isAuthorizedUser"
     >
-      Witaj, {{this.authService.authorizedUserName}}
+      Witaj, {{ this.authService.authorizedUserName }}
     </p>
     <i
       class="fa-solid fa-user max-md:mr-5 mr-10 justify-self-end text-2xl max-sm:text-xl cursor-pointer h-full sm:px-5 hover:text-gray-400"
@@ -57,6 +61,8 @@
     <input
       type="search"
       placeholder="wyszukaj zdjęcie..."
+      [(ngModel)]="searchPhrase"
+      (input)="handleSearch()"
       class="rounded-2xl h-4 p-5 pl-10 drop-shadow-md w-full"
     />
   </div>

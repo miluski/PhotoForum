@@ -1,4 +1,177 @@
 <main class="w-screen min-h-screen">
   <app-header />
+  <div class="flex flex-col w-full min-h-[80dvh] items-center justify-center">
+    <div
+      class="flex flex-col bg-[#f0de98] w-[80%] h-auto drop-shadow-md rounded-2xl mb-10"
+    >
+      <app-image
+        [imageName]="photoObject.path"
+        imageAlt="photo-post-image"
+        imageClass="w-full object-cover rounded-t-2xl max-h-[450px]"
+        dotsClass="h-4 w-4 rounded-sm bg-[#fdd458]"
+      />
+      <div
+        class="flex flex-row w-full items-center justify-between mt-2 text-sm font-roboto font-light text-nowrap space-x-5 py-5"
+      >
+        <div class="flex flex-row space-x-5 md:ml-10 ml-2">
+          <app-user-avatar
+            [avatarPath]="photoObject.author.avatarPath"
+            [avatarAlt]="photoObject.author.login + ' avatar'"
+            [userObject]="photoObject.author"
+            avatarClass="w-8 h-8"
+            ownClass="w-8 h-8"
+          />
+          <p class="text-black mt-[6px] font-normal max-xs:text-xs">
+            {{
+              this.userService.getAuthorNameAndSurname(
+                photoObject.author,
+                "single"
+              )
+            }}
+          </p>
+        </div>
+        <div class="flex flex-row xs:space-x-5 space-x-1">
+          <div class="flex flex-col">
+            <div
+              class="flex flex-row w-10 space-x-1"
+              [ngClass]="{ 'cursor-pointer': authService.isAuthorizedUser }"
+              (click)="handlePhotoLikeClick(photoObject.id)"
+            >
+              <i
+                class="fa-solid fa-heart text-xl"
+                [ngClass]="{
+                  'text-red-500': this.userService.getIsFavouriteUserPhoto(
+                    photoObject.id
+                  )
+                }"
+              ></i>
+              <p class="mt-1 font-normal">{{ photoObject.likesCount }}</p>
+            </div>
+            <div
+              *ngIf="isChangeLikeCountError"
+              class="absolute z-10 top-full right-0 transform -translate-x-1/2 mt-2 px-3 py-2 bg-red-100 border border-red-400 text-red-700 rounded-lg shadow-lg text-xs"
+              role="alert"
+            >
+              <div class="flex items-center space-x-2">
+                <i class="fas fa-exclamation-circle"></i>
+                <span>Wystąpił nieoczekiwany błąd</span>
+              </div>
+              <div
+                class="absolute -top-2 right-0 transform -translate-x-1/2 w-0 h-0 border-l-8 border-r-8 border-b-8 border-l-transparent border-r-transparent border-b-red-100"
+              ></div>
+            </div>
+          </div>
+          <div class="flex flex-row w-10 space-x-1 md:pr-10 pr-2">
+            <i class="fa-solid fa-comment text-xl"></i>
+            <p class="mt-1 font-normal">{{ photoObject.comments.length }}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="flex flex-col w-[80%] items-center rounded-2xl space-y-5 pb-5">
+      @if(photoObject.comments.length > 0) { @for (comment of
+      photoObject.comments; track comment) {
+      <div
+        class="flex flex-col sm:flex-row w-full bg-white py-3 px-4 drop-shadow-md rounded-2xl gap-3"
+      >
+        <div class="flex flex-row items-center space-x-3 sm:w-1/4">
+          <app-user-avatar
+            [avatarPath]="comment.userDto.avatarPath"
+            [avatarAlt]="comment.userDto.login + ' avatar'"
+            [userObject]="comment.userDto"
+            avatarClass="w-8 h-8"
+            ownClass="w-8 h-8"
+          />
+          <p
+            class="text-black font-normal text-sm sm:text-base overflow-hidden text-ellipsis"
+          >
+            {{
+              this.userService.getAuthorNameAndSurname(
+                comment.userDto,
+                "single"
+              )
+            }}
+          </p>
+        </div>
+        <p class="text-sm sm:text-base sm:w-1/2 sm:px-2 break-words">
+          {{ comment.content }}
+        </p>
+        <p
+          class="text-xs sm:text-sm text-gray-500 sm:w-1/4 sm:text-right self-end sm:self-center"
+        >
+          {{ comment.date }}
+        </p>
+      </div>
+      } } @else {
+      <p
+        class="text-black font-roboto font-normal text-xl sm:text-2xl text-center"
+      >
+        Brak komentarzy pod zdjęciem!
+      </p>
+      }
+      <div
+        class="flex flex-col w-full bg-white py-3 px-4 drop-shadow-md rounded-2xl"
+        *ngIf="this.authService.isAuthorizedUser"
+      >
+        <div
+          class="flex flex-col sm:flex-row items-start sm:items-center gap-3 w-full"
+        >
+          <div
+            class="flex flex-row items-center gap-2 sm:w-auto sm:min-w-[150px] sm:mr-2"
+          >
+            <app-user-avatar
+              [avatarPath]="this.authService.userObject.avatarPath"
+              [avatarAlt]="this.authService.userObject.login + ' avatar'"
+              [userObject]="this.authService.userObject"
+              avatarClass="w-8 h-8"
+              ownClass="w-8 h-8 flex-shrink-0"
+            />
+            <p
+              class="text-black font-normal text-sm whitespace-nowrap flex-shrink-0 pr-12"
+            >
+              {{
+                this.userService.getAuthorNameAndSurname(
+                  this.authService.userObject,
+                  "multiple"
+                )
+              }}
+              (Ty)
+            </p>
+          </div>
+          <div class="flex flex-row gap-2 w-full">
+            <textarea
+              [(ngModel)]="newCommentText"
+              placeholder="Napisz komentarz..."
+              class="w-full px-3 py-2 border border-gray-500 rounded-lg resize-none focus:outline-none focus:ring-2 focus:ring-yellow-300 min-h-[38px] max-h-[38px]"
+              rows="1"
+            ></textarea>
+            <button
+              [disabled]="
+                !newCommentText ||
+                newCommentText.trim() === '' ||
+                isCommentContentInvalid === true
+              "
+              class="px-3 py-1 bg-yellow-400 hover:bg-yellow-500 text-black font-medium rounded-lg transition-colors duration-200 flex-shrink-0 whitespace-nowrap h-[38px]"
+              [ngClass]="{
+                'opacity-50 cursor-not-allowed':
+                  !newCommentText || newCommentText.trim() === ''
+              }"
+              [(ngModel)]="newCommentText"
+              (click)="handleAddComentClick(photoObject.id)"
+            >
+              Dodaj
+            </button>
+          </div>
+          <div
+            *ngIf="isCommentContentInvalid === true"
+            class="flex items-center text-red-500 text-sm gap-2 px-1"
+          >
+            <i class="fas fa-exclamation-circle"></i>
+            <span>Treść komentarza jest nieprawidłowa!</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
   <app-footer />
 </main>

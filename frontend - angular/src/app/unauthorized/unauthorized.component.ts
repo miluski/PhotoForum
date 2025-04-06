@@ -1,13 +1,11 @@
 import { Component } from '@angular/core';
-import { HeaderComponent } from '../header/header.component';
 import { FooterComponent } from '../footer/footer.component';
+import { HeaderComponent } from '../header/header.component';
 
 @Component({
   selector: 'app-unauthorized',
-  templateUrl: './unauthorized.component.html',
   imports: [HeaderComponent, FooterComponent],
-  standalone: true
+  templateUrl: './unauthorized.component.html',
+  standalone: true,
 })
-export class UnauthorizedComponent {
-
-}
+export class UnauthorizedComponent {}

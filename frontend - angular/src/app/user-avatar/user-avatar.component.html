@@ -1,0 +1,14 @@
+<div
+  *ngIf="isLoading"
+  class="rounded-full flex justify-center items-center bg-yellow-500 font-normal"
+  [ngClass]="ownClass"
+>
+  {{ userInitials }}
+</div>
+<img
+  *ngIf="isLoading === false"
+  class="rounded-full pointer-events-none"
+  [src]="apiUrl"
+  [alt]="avatarAlt"
+  [ngClass]="avatarClass"
+/>

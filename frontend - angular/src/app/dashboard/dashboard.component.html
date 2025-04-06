@@ -1,4 +1,102 @@
-<main class="w-screen min-h-screen">
+<main class="flex flex-col w-screen min-h-screen items-center">
   <app-header />
+  <div
+    class="flex flex-col w-[90%] min-h-[75dvh] items-center space-y-10 bg-white bg-opacity-50 rounded-2xl mb-10 pb-5"
+  >
+    <div class="flex flex-col sm:flex-row justify-between w-[90%] mt-10 gap-4">
+      <div
+        class="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-20 items-center sm:items-start"
+      >
+        <div
+          class="flex flex-col space-y-4 font-roboto text-lg sm:text-xl text-center sm:text-left"
+        >
+          <p class="font-bold">Zdjęcie profilowe</p>
+          <p class="font-extralight text-sm sm:text-base">
+            .PNG, .JPG poniżej 1 MB
+          </p>
+        </div>
+        <app-user-avatar
+          [avatarPath]="authService.userObject.avatarPath"
+          avatarAlt="avatar"
+          avatarClass="w-16 h-16"
+          ownClass="w-16 h-16 flex-shrink-0"
+        />
+      </div>
+      <input
+        type="file"
+        accept="image/*"
+        class="hidden"
+        #fileInput
+        (change)="onFileSelected($event)"
+      />
+      <button
+        class="mt-4 px-4 py-2 bg-black text-white hover:bg-gray-500 text-nowrap rounded-lg drop-shadow-lg flex flex-row items-center justify-center"
+        (click)="fileInput.click()"
+      >
+        <app-image
+          imageAlt="photo add icon"
+          imageName="photo-add.png"
+          renderingMethod="client"
+          imageClass="pr-2"
+          dotsClass="h-4 w-4 rounded-sm bg-[#fdd458]"
+        />
+        <span class="whitespace-nowrap">Dodaj zdjęcie</span>
+      </button>
+    </div>
+    <div class="flex flex-col w-[90%] space-y-2">
+      <p>Imię</p>
+      <input
+        type="text"
+        class="drop-shadow-md px-5 py-2 rounded-xl"
+        [(ngModel)]="this.authService.userObject.name"
+      />
+      <p class="text-red-500 text-center" *ngIf="this.isNameValid === false">
+        Wprowadzone imię jest nieprawidłowe!
+      </p>
+    </div>
+    <div class="flex flex-col w-[90%] space-y-2">
+      <p>Nazwisko</p>
+      <input
+        type="text"
+        class="drop-shadow-md px-5 py-2 rounded-xl"
+        [(ngModel)]="this.authService.userObject.surname"
+      />
+      <p class="text-red-500 text-center" *ngIf="this.isSurnameValid === false">
+        Wprowadzone nazwisko jest nieprawidłowe!
+      </p>
+    </div>
+    <div class="flex flex-col w-[90%] space-y-2">
+      <p>Login</p>
+      <input
+        type="text"
+        class="drop-shadow-md px-5 py-2 rounded-xl"
+        [(ngModel)]="this.authService.userObject.login"
+      />
+      <p class="text-red-500 text-center" *ngIf="this.isLoginValid === false">
+        Wprowadzony login jest nieprawidłowy!
+      </p>
+    </div>
+    <div class="flex flex-col w-[90%] space-y-2">
+      <p>Hasło</p>
+      <input
+        type="password"
+        class="drop-shadow-md px-5 py-2 rounded-xl"
+        [(ngModel)]="this.authService.userObject.password"
+      />
+      <p
+        class="text-red-500 text-center"
+        *ngIf="this.isPasswordValid === false"
+      >
+        Wprowadzone hasło jest nieprawidłowe!
+      </p>
+    </div>
+    <button
+      class="drop-shadow-md rounded-2xl bg-[#F9DE98] px-5 py-2 cursor-pointer hover:bg-[#f9d374] mb-10"
+      [@shake]="this.shakeState"
+      (click)="handleSaveChangesButtonClick()"
+    >
+      Zapisz zmiany
+    </button>
+  </div>
   <app-footer />
 </main>
