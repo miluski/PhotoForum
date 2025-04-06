@@ -2,8 +2,10 @@
 
 body {
   background-image: url('/static/background.png');
+  /* background-color: rgb(128, 128, 128); */
   background-size: cover;
   background-repeat: no-repeat;
-  min-height: 100vh;
+  background-attachment: fixed;
+  background-position: center;
   font-family: Arial, Helvetica, sans-serif;
 }

@@ -4,6 +4,8 @@ import "./globals.css";
 import { ReactQueryProvider } from "@/components/react-query-provider";
 import { Header } from "@/components/header";
 import { Bounce, ToastContainer } from "react-toastify";
+import { Footer } from "@/components/footer";
+import { SearchProvider } from "@/components/search-provider";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -26,28 +28,31 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <ReactQueryProvider>
-      <html lang="en">
-        <body
-          className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-        >
-          <Header />
-          {children}
-          <ToastContainer
-            position="bottom-right"
-            autoClose={5000}
-            hideProgressBar={false}
-            newestOnTop={false}
-            closeOnClick={false}
-            rtl={false}
-            pauseOnFocusLoss
-            draggable
-            pauseOnHover
-            theme="light"
-            transition={Bounce}
-          />
-        </body>
-      </html>
-    </ReactQueryProvider>
+    <SearchProvider>
+      <ReactQueryProvider>
+        <html lang="en">
+          <body
+            className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+          >
+            <Header />
+            {children}
+            <ToastContainer
+              position="bottom-right"
+              autoClose={5000}
+              hideProgressBar={false}
+              newestOnTop={false}
+              closeOnClick={false}
+              rtl={false}
+              pauseOnFocusLoss
+              draggable
+              pauseOnHover
+              theme="light"
+              transition={Bounce}
+            />
+            <Footer />
+          </body>
+        </html>
+      </ReactQueryProvider>
+    </SearchProvider>
   );
 }
