@@ -20,7 +20,7 @@ export class LoginValidationService implements ValidationInterface {
   }
 
   public validateUserObject(): boolean {
-    this.isLoginValid = this.validationService.isLoginValid(this.user.login);
+    this.isLoginValid = this.validationService.isLoginValid(this.user.login ?? "");
     this.isPasswordValid = this.validationService.isPasswordValid(
       this.user.password
     );

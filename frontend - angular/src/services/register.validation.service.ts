@@ -28,7 +28,7 @@ export class RegisterValidationService implements ValidationInterface {
     this.isSurnameValid = this.validationService.isSurnameValid(
       this.user.surname
     );
-    this.isLoginValid = this.validationService.isLoginValid(this.user.login);
+    this.isLoginValid = this.validationService.isLoginValid(this.user.login ?? "");
     this.isPasswordValid = this.validationService.isPasswordValid(
       this.user.password
     );
