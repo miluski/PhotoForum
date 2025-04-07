@@ -10,6 +10,7 @@ import { useGetUserFavoritesPhotosQuery } from "@/hooks/queries/get-user-favorit
 import { useState } from "react";
 import { Comment } from "@/interfaces/comment";
 import { useIsAuthorizedQuery } from "@/hooks/queries/is-authorized.query";
+import { useGetUserDetailsQuery } from "@/hooks/queries/user-details.query";
 
 const defaultAvatarUrl =
   "https://static.vecteezy.com/system/resources/previews/009/292/244/non_2x/default-avatar-icon-of-social-media-user-vector.jpg";
@@ -21,6 +22,7 @@ export default function PhotoPage() {
   const toggleFavoriteMutation = useToggleFavoriteMutation();
   const { data: userFavoritesPhotos } = useGetUserFavoritesPhotosQuery();
   const { data: isAuthorized } = useIsAuthorizedQuery();
+  const { data: userDetails } = useGetUserDetailsQuery();
 
   const [comment, setComment] = useState("");
 
@@ -115,14 +117,14 @@ export default function PhotoPage() {
               className="bg-white rounded-lg shadow-md p-4 mb-4 flex items-start space-x-3"
             >
               <img
-                src={avatarUrl}
-                alt={`Avatar of ${photo.userDto?.surname}`}
+                src={`${BASE_IMAGE_URL}${comment.userDto?.avatarPath}`}
+                alt={`Avatar of ${comment.userDto?.name}`}
                 className="w-8 h-8 rounded-full object-cover"
               />
               <div className="flex-1">
                 <div className="flex justify-between items-center">
                   <span className="text-sm font-medium text-gray-800">
-                    {photo.userDto?.name} {photo.userDto?.surname}
+                    {comment.userDto?.name} {comment.userDto?.surname}
                   </span>
                   <span className="text-xs text-gray-500">{comment.date}</span>
                 </div>
@@ -138,7 +140,7 @@ export default function PhotoPage() {
         {/* Comment Input */}
         <div className="bg-white rounded-lg shadow-md p-4 mt-4 flex items-center space-x-3">
           <img
-            src={avatarUrl}
+            src={`${BASE_IMAGE_URL}${userDetails?.avatarPath}`}
             alt="Your avatar"
             className="w-8 h-8 rounded-full object-cover"
           />

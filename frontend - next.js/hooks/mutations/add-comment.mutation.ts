@@ -1,6 +1,8 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { axiosInstance } from "@/interceptor";
 import axios from "axios";
+import { Photo } from "@/interfaces/photo";
+import { useGetUserDetailsQuery } from "../queries/user-details.query";
 
 const addComment = async ({
   photoId,
@@ -12,7 +14,12 @@ const addComment = async ({
   try {
     const response = await axiosInstance.post(
       `/photos/${photoId}/add-comment`,
-      comment
+      `${comment}`,
+      {
+        headers: {
+          "Content-Type": "text/plain",
+        },
+      }
     );
     return response.data;
   } catch (error) {
@@ -25,20 +32,27 @@ const addComment = async ({
 
 export const useAddCommentMutation = () => {
   const queryClient = useQueryClient();
+  const { data: userDetails } = useGetUserDetailsQuery();
 
   return useMutation({
     mutationFn: addComment,
     onSuccess: (data, variables) => {
       const { photoId, comment } = variables;
 
-      queryClient.setQueryData(["photo-details", photoId], (oldData: any) => {
+      queryClient.setQueryData(["photo-details", photoId], (oldData: Photo) => {
         if (!oldData) return oldData;
 
         return {
           ...oldData,
           commentDtos: [
             ...oldData.commentDtos,
-            { content: comment, createdAt: new Date().toISOString() },
+            {
+              content: comment,
+              date: new Date().toISOString().slice(0, 10),
+              userDto: {
+                ...userDetails,
+              },
+            },
           ],
         };
       });
