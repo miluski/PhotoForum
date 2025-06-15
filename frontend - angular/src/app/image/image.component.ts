@@ -23,14 +23,14 @@ export class ImageComponent implements OnInit, OnChanges {
   @Input() imageName!: string;
   @Input() ownClass!: string;
   @Input() dotsClass!: string;
-  @Input() imageClass!: string;
+  @Input() imageClass!: string; 
   @Input() renderingMethod: 'client' | 'server';
 
   protected dotsArray: number[];
   protected isLoading: boolean;
   protected loadingAnimationState: 'start' | 'end';
 
-  private intervalId!: NodeJS.Timeout;
+  private intervalId!: ReturnType<typeof setInterval>;
 
   constructor(@Inject(PLATFORM_ID) private platformId: object) {
     this.dotsArray = [0, 1, 2];
