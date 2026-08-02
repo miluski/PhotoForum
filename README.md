@@ -1,224 +1,166 @@
-# PhotoForum
+<div align="center">
 
-This is a project which main concept is to compare two frontend frameworks - Next.js and Angular
+# PhotoForum 📸
 
-## API Endpoints
+### One Java REST API, two frontend implementations
 
-- /api/v1/auth/is-authorized - GET - for checking if user has saved cookies with tokens
+<p>
+  <img src="https://img.shields.io/badge/Java-E76F00?style=for-the-badge&logo=openjdk&logoColor=white" alt="Java" title="Java — shared backend implementation" />
+  <img src="https://img.shields.io/badge/Spring%20Boot-6DB33F?style=for-the-badge&logo=springboot&logoColor=white" alt="Spring Boot" title="Spring Boot — shared REST API" />
+  <img src="https://img.shields.io/badge/Angular-DD0031?style=for-the-badge&logo=angular&logoColor=white" alt="Angular" title="Angular — first frontend implementation" />
+  <img src="https://img.shields.io/badge/Next.js-000000?style=for-the-badge&logo=nextdotjs&logoColor=white" alt="Next.js" title="Next.js — second frontend implementation" />
+  <img src="https://img.shields.io/badge/TypeScript-3178C6?style=for-the-badge&logo=typescript&logoColor=white" alt="TypeScript" title="TypeScript — typed frontend development" />
+  <img src="https://img.shields.io/badge/Docker-2496ED?style=for-the-badge&logo=docker&logoColor=white" alt="Docker" title="Docker Compose — development and production environments" />
+</p>
 
-- /api/v1/auth/login - POST - for user login request, tokens is not required, required body:
+<p>
+  <img src="https://img.shields.io/badge/Backend-Shared%20REST%20API-005571?style=flat-square" alt="Shared REST API" title="Both frontend applications use the same backend contract" />
+  <img src="https://img.shields.io/badge/Auth-JWT%20cookies-6F42C1?style=flat-square" alt="JWT authentication" title="Access and refresh tokens handled through cookies" />
+  <img src="https://img.shields.io/badge/Clients-Angular%20%2B%20Next.js-2EA44F?style=flat-square" alt="Angular and Next.js clients" title="Equivalent workflows implemented in Angular and Next.js" />
+</p>
 
-```json
-{
-	"login": "login (min 5 chars, max 20 chars, not null)",
-	"password": "password (8 digits, 1 uppercase, 1 lowercase, 1 special char, 1 number, not null)"
-}
+</div>
+
+---
+
+## Overview
+
+PhotoForum is a full-stack photo-sharing application created to compare **Angular** and **Next.js** implementations under the same functional requirements.
+
+Both clients communicate with one shared Java and Spring Boot REST API. This makes it possible to compare frontend structure and integration choices without changing the backend domain or API contract.
+
+### Shared capabilities
+
+- user registration and authentication
+- access- and refresh-token workflows
+- user profiles and avatars
+- photo upload and storage
+- public photo feed
+- likes and favourites
+- comments
+- user-specific photo collections
+- shared REST API contract
+- separate development and production Docker environments
+
+---
+
+## Architecture
+
+```mermaid
+flowchart LR
+    A["Angular client"]
+    N["Next.js client"]
+    API["Shared Spring Boot REST API"]
+    DB[("PostgreSQL")]
+    MEDIA["Photo and avatar storage"]
+
+    A <-->|HTTPS / JSON| API
+    N <-->|HTTPS / JSON| API
+    API --> DB
+    API --> MEDIA
 ```
 
-returns:
+The backend remains the common comparison baseline. Both frontend applications implement equivalent user workflows against the same endpoints.
 
-```
-name_string
-```
+---
 
-- /api/v1/auth/register - POST - for user register request, tokens is not required, required body:
+## Frontend comparison
 
-```json
-{
-	"login": "login (min 5 chars, max 20 chars, not null)",
-	"password": "password (8 digits, 1 uppercase, 1 lowercase, 1 special char, 1 number, not null)",
-	"name": "name (min 3 chars, max 50 chars, not null)",
-	"surname": "surname (min 5 chars, max 60 chars, not null)",
-	"avatarPath": "(should be empty string)"
-}
-```
+The project provides a practical foundation for comparing two frontend approaches against the same backend.
 
-- /api/v1/auth/refresh-tokens - POST - for refresh tokens request, valid refresh token is required in cookies
+| Area | Angular client | Next.js client |
+|---|---|---|
+| Application model | Framework-led client application | React-based Next.js application |
+| Language | TypeScript | TypeScript |
+| Routing | Angular routing implementation | Next.js routing implementation |
+| API integration | Angular HTTP layer | Client-side integration with the shared API |
+| Authentication | Shared token and cookie contract | Shared token and cookie contract |
+| Functional scope | Equivalent PhotoForum workflows | Equivalent PhotoForum workflows |
+| Backend dependency | Shared Spring Boot API | Shared Spring Boot API |
 
-- /api/v1/auth/logout - POST - for logout user request, valid refresh token is required in cookies
+The table intentionally describes the project architecture without claiming that one framework is universally better. Detailed conclusions should be based on the actual implementation and team experience.
 
-- /api/v1/photos/new - POST - for adding new photo on server, requires token and body:
+---
 
-```json
-{
-	"path": "base64_image_representation_from_frontend"
-}
-```
+## Technology stack
 
-- /api/v1/photos/posts - GET - for retrieving all photos posts from db, tokens is not required, returns:
+| Area | Technologies |
+|---|---|
+| Backend | Java, Spring Boot, REST APIs |
+| Angular client | Angular, TypeScript |
+| Next.js client | Next.js, React, TypeScript |
+| Persistence | PostgreSQL |
+| Authentication | Access and refresh tokens stored in cookies |
+| Media | Photo and avatar storage |
+| Delivery | Docker, Docker Compose |
+| Transport | HTTPS in the configured environment |
 
-```json
-[
-    {
-        "id": id_number,
-        "path": "mediapath_string",
-        "userDto": {
-            "name": "name_string",
-            "surname": "surname_string",
-            "login": "login_string",
-            "password": null,
-            "avatarPath": null
-        },
-        "likesCount": likesCount_number,
-        "commentDtos": []
-    }
-]
-```
+---
 
-- /api/v1/photos/public/name.extension - GET - for retrieving photo with extension from media folder, tokens is not required, allowed extensions: .png, .jpg, .jpeg, .webp, required path variable:
+## API overview
 
-```
-name.extension - for example photo.png
-```
+The backend exposes endpoints for:
 
-- /api/v1/photos/photo-id/add-comment - POST - for adding comment to photo, tokens is required (especially access token) for retrieving from it assigned user login which is adding comment, required path variable and body:
+- login, registration, logout and token refresh
+- authorisation checks
+- photo upload and retrieval
+- likes, comments and favourites
+- user profile details
+- user-specific photo collections
+- avatar and media retrieval
 
-```json
-path-variable:
+Move detailed request and response examples to a dedicated file such as:
 
-photo-id - for example 1
-
-body: "Here should be comment for photo as simply string"
+```text
+documentation/api.md
 ```
 
-- /api/v1/photos/photo-id/add-to-favourites - POST - for adding photo to favourites of user photos, tokens is required (especially access token) for retrieving from it assigned user login, required path variable:
+Then keep this README focused on project value, architecture and setup.
 
-```
-photo-id - for example 1
-```
+---
 
-- /api/v1/photos/photo-id/remove-from-favourites - DELETE - for remove photo from favourites of user photos, tokens is required (especially access token) for retrieving from it assigned user login, required path variable:
+## Running the project
 
-```
-photo-id - for example 1
-```
+### Frontend development environment
 
-- /api/v1/photos/public/id/photo-id - GET - retrieves single photo object, token is not required to authenticate, required path variable:
-
-```
-photo-id - for example 1
-```
-
-returns:
-
-```
-    {
-        "id": id_number,
-        "path": "mediapath_string",
-        "userDto": {
-            "name": "name_string",
-            "surname": "surname_string",
-            "login": "login_string",
-            "password": null,
-            "avatarPath": null
-        },
-        "likesCount": likesCount_number,
-        "commentDtos": []
-    }
-```
-
-- /api/v1/users/edit - PATCH - for editing user object, requires access token to get edited user id and to authorize and body:
-
-You must pass only one of above fields to edit user object:
-
-```json
-{
-	"login": "editedLogin (min 5 chars, max 20 chars, not null)",
-	"password": "password (8 digits, 1 uppercase, 1 lowercase, 1 special char, 1 number, not null)",
-	"name": "name (min 3 chars, max 50 chars, not null)",
-	"surname": "surname (min 5 chars, max 60 chars, not null)",
-	"avatarPath": "base_64_representation_from_frontend"
-}
-```
-
-- /api/v1/users/get-favourite-photos - GET - for retrieving photos which user marks as favourite. requires access token in request cookies, returns:
-
-```json
-[
-    {
-        "id": id_number,
-        "path": "media_path_string",
-        "userDto": {
-            "name": "name_string",
-            "surname": "surname_string",
-            "login": "login_string",
-            "password": null,
-            "avatarPath": null
-        },
-        "likesCount": likesCount_number,
-        "commentDtos": []
-    }
-]
-
-```
-
-- /api/v1/users/user-details - GET - returns userdto details object. needs access token to authorize, returns:
-
-```json
-{
-	"name": "name_string",
-	"surname": "surname_string",
-	"login": "login_string",
-	"password": null,
-	"avatarPath": null
-}
-```
-
-## Running
-
-### Frontend part
-
-To run frontend part of app run following command in PhotoForum dir (not backend or frontend or another path):
-
-```
-Development mode:
+```bash
 docker compose -f compose.frontend.dev.yaml up --build --force-recreate
+```
 
-Production mode:
+### Frontend production environment
+
+```bash
 docker compose -f compose.frontend.yaml up --build --force-recreate
 ```
 
-### Backend part
+### Backend development environment
 
-To run backend backend part of app provide following command in PhotoForum dir (not backend or frontend or another path):
-
-```
-Development mode (with hot reloading):
+```bash
 docker compose -f compose.backend.dev.yaml up --build --force-recreate
+```
 
-Production mode:
+### Backend production environment
+
+```bash
 docker compose -f compose.backend.yaml up --build --force-recreate
 ```
 
-## Required files
+The backend requires its Spring application configuration, database credentials, JWT values and media-storage path. The root environment file supplies PostgreSQL configuration.
 
-In backend part you should have file called application.properties in backend/src/main/resources folder. It should contains:
+---
 
-```
-spring.application.name=backend
-server.port=4443
-server.ssl.key-store=/certs/keystore.p12
-server.ssl.key-store-password=your_keystore_file_pass
-server.ssl.key-store-type=PKCS12
-server.ssl.key-alias=tomcat
-spring.servlet.multipart.max-file-size=50MB
-spring.servlet.multipart.max-request-size=50MB
-spring.datasource.url=jdbc:postgresql://photo-forum-postgres:5432/postgres
-spring.datasource.username=your_database_login
-spring.datasource.password=your_database_pass
-spring.jpa.hibernate.ddl-auto=update
-spring.jpa.show-sql=true
-spring.jpa.properties.hibernate.format_sql=true
-jwt.secret=your_jwt_secret
-jwt.expiration=your_jwt_expiration
-jwt.refresh.expiration=your_jwt_refresh_expiration
-photo.dir=/media
-```
+## Project structure
 
-In main folder (PhotoForum) you should have file called .env with content:
-
-```
-POSTGRES_DB=postgres
-POSTGRES_PASSWORD=your_database_password
-POSTGRES_USER=your_database_login
+```text
+.
+├── backend/
+├── frontend - angular/
+├── frontend - next.js/
+├── documentation/
+├── mockups/
+├── certs/
+├── compose.backend.dev.yaml
+├── compose.backend.yaml
+├── compose.frontend.dev.yaml
+└── compose.frontend.yaml
 ```
